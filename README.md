@@ -1,3 +1,5 @@
+This is a fork made for personal usage in our uma circle server. Thanks to the original author.
+
 # umapyoi
 以《赛马娘 Pretty Derby》为主题的“玩家育成”模组。  
 准备中。  
