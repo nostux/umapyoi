@@ -50,6 +50,8 @@ public class ShapelessUmasoulRecipe extends ShapelessRecipe {
         if (!ForgeRegistries.ITEMS.getKey(result.getItem()).equals(getOutputUma())) 
             result = ItemRegistry.BLANK_UMA_SOUL.get().getDefaultInstance();
         UmaData data = registry.get(outputUma);
+        if(data == null)
+        	return ItemStack.EMPTY;
         result.getOrCreateTag().putString("name", this.outputUma.toString());
         result.getOrCreateTag().putString("identifier", data.getIdentifier().toString());
         result.getOrCreateTag().putString("ranking", data.getGachaRanking().toString().toLowerCase());

@@ -1,12 +1,19 @@
 package net.tracen.umapyoi.events.handler;
 
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
+import cn.mcmod_mmf.mmlib.client.model.pojo.BedrockModelPOJO;
 import cn.mcmod_mmf.mmlib.utils.ClientUtil;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlot.Type;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -14,11 +21,12 @@ import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderArmEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.tracen.umapyoi.UmapyoiConfig;
 import net.tracen.umapyoi.api.UmapyoiAPI;
+import net.tracen.umapyoi.client.model.UmaCostumeModelUtils;
 import net.tracen.umapyoi.client.model.UmaPlayerModel;
 import net.tracen.umapyoi.data.tag.UmapyoiItemTags;
 import net.tracen.umapyoi.events.client.RenderingUmaSoulEvent;
@@ -28,7 +36,7 @@ import net.tracen.umapyoi.utils.UmaSoulUtils;
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientEvents {
 
-    private static NonNullList<ItemStack> armor;
+    private static Map<EquipmentSlot, ItemStack> armor;
 
     @SubscribeEvent
     public static void preUmaSoulRendering(RenderingUmaSoulEvent.Pre event) {
@@ -47,35 +55,48 @@ public class ClientEvents {
     }
     
     @SubscribeEvent
-    public static void onPlayerRendering(RenderPlayerEvent.Pre event) {
-        Player player = event.getEntity();
+    public static <T extends LivingEntity, M extends EntityModel<T>> void onPlayerRendering(RenderLivingEvent.Pre<T, M> event) {
+        LivingEntity player = event.getEntity();
         ItemStack umasoul = UmapyoiAPI.getRenderingUmaSoul(event.getEntity());
         if (!umasoul.isEmpty()) {
-            event.getRenderer().getModel().setAllVisible(false);
+        	if(event.getRenderer().getModel() instanceof HumanoidModel humanoid) {
+        		humanoid.setAllVisible(false);
             if (!UmapyoiConfig.VANILLA_ARMOR_RENDER.get() && !umasoul.isEmpty()) {
-                armor = NonNullList.create();
-                for (int i = 0; i < player.getInventory().armor.size(); ++i) {
-                    armor.add(player.getInventory().armor.get(i).copy());
-                    boolean renderElytry = UmapyoiConfig.ELYTRA_RENDER.get()
-                            && player.getInventory().armor.get(i).getItem() instanceof ElytraItem;
-                    boolean shouldRender = player.getInventory().armor.get(i).is(UmapyoiItemTags.SHOULD_RENDER);
+            	//TODO: 重写这个方法以适配不同实体
+            	
+                armor = Maps.newHashMap();
+
+            	for(EquipmentSlot slot : EquipmentSlot.values()) {
+            		if(slot.getType() == Type.HAND)
+            			continue;
+            		ItemStack itemBySlot = player.getItemBySlot(slot);
+					armor.put(slot, itemBySlot);
+					
+					boolean renderElytry = UmapyoiConfig.ELYTRA_RENDER.get()
+							&& itemBySlot.getItem() instanceof ElytraItem;
+					boolean shouldRender = itemBySlot.is(UmapyoiItemTags.SHOULD_RENDER);
 					if (renderElytry || shouldRender)
-                        player.getInventory().armor.set(i, player.getInventory().armor.get(i));
-                    else
-                        player.getInventory().armor.set(i, ItemStack.EMPTY);
-                }
+						player.setItemSlot(slot, itemBySlot);
+					else
+						player.setItemSlot(slot, ItemStack.EMPTY);
+            	}
+            	
+            	}
             }
         }
     }
 
     @SubscribeEvent
-    public static void onPlayerRenderingPost(RenderPlayerEvent.Post event) {
-        Player player = event.getEntity();
+    public static <T extends LivingEntity, M extends EntityModel<T>> void onPlayerRenderingPost(RenderLivingEvent.Post<T, M>  event) {
+    	LivingEntity player = event.getEntity();
         ItemStack umasoul = UmapyoiAPI.getRenderingUmaSoul(event.getEntity());
         if (!UmapyoiConfig.VANILLA_ARMOR_RENDER.get() && armor != null && !umasoul.isEmpty()) {
-            for (int i = 0; i < player.getInventory().armor.size(); ++i) {
-                player.getInventory().armor.set(i, armor.get(i));
-            }
+        	for(EquipmentSlot slot : EquipmentSlot.values()) {
+        		if(slot.getType() == Type.HAND)
+        			continue;
+        		
+				player.setItemSlot(slot, armor.get(slot));
+        	}
         }
     }
 
@@ -85,48 +106,60 @@ public class ClientEvents {
     public static void onPlayerArmRendering(RenderArmEvent event) {
         Player player = event.getPlayer();
         ItemStack umasoul = UmapyoiAPI.getRenderingUmaSoul(player);
+        ItemStack umasuit = UmapyoiAPI.getUmaSuit(player);
         if (!umasoul.isEmpty()) {
             ResourceLocation name = UmaSoulUtils.getName(umasoul);
             VertexConsumer vertexconsumer = event.getMultiBufferSource()
                     .getBuffer(RenderType.entityTranslucent(getTexture(name)));
             var pojo = ClientUtil.getModelPOJO(name);
-            if(baseModel.needRefresh(pojo))
-                baseModel.loadModel(pojo);
-
-            baseModel.setModelProperties(event.getPlayer());
-            baseModel.attackTime = 0.0F;
-            baseModel.crouching = false;
-            baseModel.swimAmount = 0.0F;
-            baseModel.setupAnim(event.getPlayer(), 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-
-            if (event.getArm() == HumanoidArm.RIGHT) {
-                baseModel.rightArm.xRot = 0.0F;
-                baseModel.rightArm.x -=1F;
-                baseModel.rightArm.render(event.getPoseStack(), vertexconsumer, event.getPackedLight(),
-                        OverlayTexture.NO_OVERLAY);
-                if(baseModel.isEmissive()) {
-                    VertexConsumer emissiveConsumer = event.getMultiBufferSource()
-                            .getBuffer(RenderType.entityTranslucentEmissive(ClientUtils.getEmissiveTexture(name)));
-                    baseModel.rightArm.renderEmissive(event.getPoseStack(), emissiveConsumer, event.getPackedLight(),
-                            OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
-                }
-                baseModel.rightArm.x +=1F;
-            } else {
-                baseModel.leftArm.xRot = 0.0F;
-                baseModel.leftArm.x +=1F;
-                baseModel.leftArm.render(event.getPoseStack(), vertexconsumer, event.getPackedLight(),
-                        OverlayTexture.NO_OVERLAY);
-                if(baseModel.isEmissive()) {
-                    VertexConsumer emissiveConsumer = event.getMultiBufferSource()
-                            .getBuffer(RenderType.entityTranslucentEmissive(ClientUtils.getEmissiveTexture(name)));
-                    baseModel.leftArm.renderEmissive(event.getPoseStack(), emissiveConsumer, event.getPackedLight(),
-                            OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
-                }
-                baseModel.leftArm.x -=1F;
+            if(!umasuit.isEmpty()) {
+            	boolean tanned = ClientUtils.isTannedSkin(umasoul);
+            	vertexconsumer = event.getMultiBufferSource()
+                        .getBuffer(RenderType.entityTranslucent(UmaCostumeModelUtils.getCostumeTexture(umasuit, tanned)));
+            	pojo = ClientUtil.getModelPOJO(UmaCostumeModelUtils.getCostumeModel(umasuit));
             }
+            renderArmModel(event, name, vertexconsumer, pojo);
             event.setCanceled(true);
         }
     }
+
+	private static void renderArmModel(RenderArmEvent event, ResourceLocation name, VertexConsumer vertexconsumer,
+			BedrockModelPOJO pojo) {
+		if(baseModel.needRefresh(pojo))
+		    baseModel.loadModel(pojo);
+
+		baseModel.setModelProperties(event.getPlayer());
+		baseModel.attackTime = 0.0F;
+		baseModel.crouching = false;
+		baseModel.swimAmount = 0.0F;
+		baseModel.setupAnim(event.getPlayer(), 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+
+		if (event.getArm() == HumanoidArm.RIGHT) {
+		    baseModel.rightArm.xRot = 0.0F;
+		    baseModel.rightArm.x -=1F;
+		    baseModel.rightArm.render(event.getPoseStack(), vertexconsumer, event.getPackedLight(),
+		            OverlayTexture.NO_OVERLAY);
+		    if(baseModel.isEmissive()) {
+		        VertexConsumer emissiveConsumer = event.getMultiBufferSource()
+		                .getBuffer(RenderType.entityTranslucentEmissive(ClientUtils.getEmissiveTexture(name)));
+		        baseModel.rightArm.renderEmissive(event.getPoseStack(), emissiveConsumer, event.getPackedLight(),
+		                OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+		    }
+		    baseModel.rightArm.x +=1F;
+		} else {
+		    baseModel.leftArm.xRot = 0.0F;
+		    baseModel.leftArm.x +=1F;
+		    baseModel.leftArm.render(event.getPoseStack(), vertexconsumer, event.getPackedLight(),
+		            OverlayTexture.NO_OVERLAY);
+		    if(baseModel.isEmissive()) {
+		        VertexConsumer emissiveConsumer = event.getMultiBufferSource()
+		                .getBuffer(RenderType.entityTranslucentEmissive(ClientUtils.getEmissiveTexture(name)));
+		        baseModel.leftArm.renderEmissive(event.getPoseStack(), emissiveConsumer, event.getPackedLight(),
+		                OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+		    }
+		    baseModel.leftArm.x -=1F;
+		}
+	}
 
     private static ResourceLocation getTexture(ResourceLocation name) {
         return new ResourceLocation(name.getNamespace(), "textures/model/" + name.getPath() + ".png");

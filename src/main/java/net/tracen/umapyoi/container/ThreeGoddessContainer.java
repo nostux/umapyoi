@@ -156,6 +156,8 @@ public class ThreeGoddessContainer extends AbstractContainerMenu {
         @Override
         public boolean mayPlace(ItemStack stack) {
             boolean result = stack.is(ItemRegistry.UMA_FACTOR_ITEM.get());
+            if(!result)
+            	return false;
             boolean factorFlag = false;
             String name = stack.getOrCreateTag().getString("name");
             var soulStack = this.getItemHandler().getStackInSlot(0);

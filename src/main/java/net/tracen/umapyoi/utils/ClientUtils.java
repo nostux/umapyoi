@@ -16,12 +16,15 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.tracen.umapyoi.Umapyoi;
+import net.tracen.umapyoi.data.tag.UmapyoiUmaDataTags;
 import net.tracen.umapyoi.registry.cosmetics.CosmeticData;
 import net.tracen.umapyoi.registry.training.card.SupportCard;
 import net.tracen.umapyoi.registry.umadata.UmaData;
@@ -71,6 +74,19 @@ public class ClientUtils {
     public static Registry<CosmeticData> getClientCosmeticDataRegistry() {
         return Minecraft.getInstance().getConnection().registryAccess().registryOrThrow(CosmeticData.REGISTRY_KEY);
     }
+    
+
+	public static boolean isFlatUmamusume(ItemStack stack) {
+		return ClientUtils.getClientUmaDataRegistry()
+		        .getHolder(ResourceKey.create(UmaData.REGISTRY_KEY, UmaSoulUtils.getName(stack)))
+		        .get().is(UmapyoiUmaDataTags.FLAT_CHEST);
+	}
+	
+	public static boolean isTannedSkin(ItemStack stack) {
+		return ClientUtils.getClientUmaDataRegistry()
+		        .getHolder(ResourceKey.create(UmaData.REGISTRY_KEY, UmaSoulUtils.getName(stack)))
+		        .get().is(UmapyoiUmaDataTags.TANNED_SKIN);
+	}
     
     public static void addSummonParticle(Level pLevel, BlockPos pPos) {
         RandomSource pRand = pLevel.getRandom();

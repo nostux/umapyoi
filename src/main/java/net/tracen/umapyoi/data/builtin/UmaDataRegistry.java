@@ -122,6 +122,7 @@ public class UmaDataRegistry {
     public static final ResourceKey<UmaData> MIYA_YOMOGI = register("miya_yomogi");
     
     public static final ResourceKey<UmaData> ALMOND_EYE = register("almond_eye");
+    public static final ResourceKey<UmaData> FUSAICHI_PANDORA = register("fusaichi_pandora");
     
     public static void registerAll(BootstapContext<UmaData> bootstrap) {
         bootstrap.register(AGNES_DIGITAL, UmaData.createNewUmamusume("agnes_digital", GachaRanking.SR, new int[] {8, 8, 7, 0, 7}));
@@ -239,6 +240,7 @@ public class UmaDataRegistry {
         bootstrap.register(SATONO_CROWN, UmaData.createNewUmamusume("satono_crown", GachaRanking.SR, new int[] {0, 0, 15, 15, 0}));
         
         bootstrap.register(ALMOND_EYE, UmaData.createNewUmamusume("almond_eye", GachaRanking.SSR, new int[] {10, 5, 10, 10, 5}));
+        bootstrap.register(FUSAICHI_PANDORA, UmaData.createNewUmamusume("fusaichi_pandora", GachaRanking.SR, new int[] {0, 0, 15, 15, 0}));
     }
 
     private static ResourceKey<UmaData> register(String id) {

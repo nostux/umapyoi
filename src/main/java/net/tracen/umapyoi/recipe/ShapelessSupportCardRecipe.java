@@ -49,9 +49,12 @@ public class ShapelessSupportCardRecipe extends ShapelessRecipe {
         Registry<SupportCard> registry = access.registryOrThrow(SupportCard.REGISTRY_KEY);
         if (!ForgeRegistries.ITEMS.getKey(result.getItem()).equals(getOutput())) 
             result = ItemRegistry.SUPPORT_CARD.get().getDefaultInstance();
+        SupportCard supportCard = registry.get(this.outputUma);
+        if(supportCard == null)
+        	return ItemStack.EMPTY;
         result.getOrCreateTag().putString("support_card", this.outputUma.toString());
-        result.getOrCreateTag().putString("ranking", registry.get(this.outputUma).getGachaRanking().name().toLowerCase());
-        result.getOrCreateTag().putInt("maxDamage", registry.get(this.outputUma).getMaxDamage());
+		result.getOrCreateTag().putString("ranking", supportCard.getGachaRanking().name().toLowerCase());
+        result.getOrCreateTag().putInt("maxDamage", supportCard.getMaxDamage());
         return result;
     }
     @Override

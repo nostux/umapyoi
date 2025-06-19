@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.tracen.umapyoi.item.UmaCostumeItem;
 import net.tracen.umapyoi.item.UmaSoulItem;
 import net.tracen.umapyoi.item.UmaSuitItem;
 import net.tracen.umapyoi.registry.cosmetics.CosmeticData;
@@ -24,6 +25,8 @@ public class UmapyoiAPI {
     public static ItemStack getRenderingUmaSoul(LivingEntity entity) {
         if (CuriosApi.getCuriosInventory(entity).isPresent()) {
             var itemHandler = CuriosApi.getCuriosInventory(entity).orElse(null);
+            if(itemHandler == null)
+            	return ItemStack.EMPTY;
             if (itemHandler.getStacksHandler("uma_soul").isPresent()) {
                 var stacksHandler = itemHandler.getStacksHandler("uma_soul").orElse(null);
                 if(!stacksHandler.getRenders().get(0))
@@ -40,6 +43,8 @@ public class UmapyoiAPI {
     public static ItemStack getUmaSoul(LivingEntity entity) {
         if (CuriosApi.getCuriosInventory(entity).isPresent()) {
             var itemHandler = CuriosApi.getCuriosInventory(entity).orElse(null);
+            if(itemHandler == null)
+            	return ItemStack.EMPTY;
             if (itemHandler.getStacksHandler("uma_soul").isPresent()) {
                 var stacksHandler = itemHandler.getStacksHandler("uma_soul").orElse(null);
                 
@@ -62,13 +67,16 @@ public class UmapyoiAPI {
     public static ItemStack getUmaSuit(LivingEntity entity) {
         if (CuriosApi.getCuriosInventory(entity).isPresent()) {
             var itemHandler = CuriosApi.getCuriosInventory(entity).orElse(null);
+            if(itemHandler == null)
+            	return ItemStack.EMPTY;
             if (itemHandler.getStacksHandler("uma_suit").isPresent()) {
                 var stacksHandler = itemHandler.getStacksHandler("uma_suit").orElse(null);
                 IDynamicStackHandler stackHandler = stacksHandler.getStacks();
                 if (stackHandler.getSlots() <= 0)
                     return ItemStack.EMPTY;
-                if (stackHandler.getStackInSlot(0).getItem() instanceof UmaSuitItem) {
-                    return stackHandler.getStackInSlot(0);
+                ItemStack stackInSlot = stackHandler.getStackInSlot(0);
+				if (stackInSlot.getItem() instanceof UmaSuitItem || stackInSlot.getItem() instanceof UmaCostumeItem ) {
+                    return stackInSlot;
                 }
             }
         }
@@ -78,6 +86,8 @@ public class UmapyoiAPI {
     public static boolean isUmaSuitRendering(LivingEntity player) {
         if (CuriosApi.getCuriosInventory(player).isPresent()) {
             var itemHandler = CuriosApi.getCuriosInventory(player).orElse(null);
+            if(itemHandler == null)
+            	return false;
             if (itemHandler.getStacksHandler("uma_suit").isPresent()) {
                 var stacksHandler = itemHandler.getStacksHandler("uma_suit").orElse(null);
                 IDynamicStackHandler stackHandler = stacksHandler.getStacks();
