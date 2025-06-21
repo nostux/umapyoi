@@ -39,7 +39,7 @@ import net.tracen.umapyoi.utils.UmaSoulUtils;
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = Umapyoi.MODID)
 public class TrainingFacilityBlockEntity extends SyncedBlockEntity implements MenuProvider {
 
-    public static final int MAX_PROCESS_TIME = 260;
+    public static final int MAX_PROCESS_TIME = 100;
     private final ItemStackHandler inventory;
 
     protected final ContainerData tileData;

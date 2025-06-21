@@ -12,6 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.Unbreakable;
 import net.tracen.umapyoi.Umapyoi;
 import net.tracen.umapyoi.item.ItemRegistry;
 import net.tracen.umapyoi.item.data.DataComponentsTypeRegistry;
@@ -56,15 +57,14 @@ public class SupportCard{
     
     public static ItemStack init(ResourceLocation name, SupportCard card) {
         ItemStack result = new ItemStack(ItemRegistry.SUPPORT_CARD.get());
-        result.set(DataComponents.MAX_DAMAGE, card.getMaxDamage());
-        result.set(DataComponents.DAMAGE, 0);
+        result.set(DataComponents.UNBREAKABLE, new Unbreakable(true));
         result.set(DataComponentsTypeRegistry.DATA_LOCATION, new DataLocation(name));
         GachaRanking ranking = card.getGachaRanking();
-		result.set(DataComponentsTypeRegistry.GACHA_RANKING, new GachaRankingData(ranking));
+        result.set(DataComponentsTypeRegistry.GACHA_RANKING, new GachaRankingData(ranking));
         result.set(DataComponents.RARITY, 
-        		ranking == GachaRanking.SSR ? Rarity.EPIC : ranking == GachaRanking.SR ? Rarity.UNCOMMON : Rarity.COMMON
-        		);
-		return result;
+                ranking == GachaRanking.SSR ? Rarity.EPIC : ranking == GachaRanking.SR ? Rarity.UNCOMMON : Rarity.COMMON
+                );
+        return result;
 	}
 
     public GachaRanking getGachaRanking() {

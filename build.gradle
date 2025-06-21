@@ -272,7 +272,7 @@ publisher {
     setArtifact(jar)
 
     // Add supported java versions. Currently only used by CurseForge
-    setJavaVersions("Java 21")
+    setJavaVersions(["Java 21"])
 
     // Safety check to check if the artifact contains a valid mod metadata entry,
     // which could possibly mean that the jar is empty

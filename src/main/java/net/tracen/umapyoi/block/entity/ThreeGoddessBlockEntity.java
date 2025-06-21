@@ -45,7 +45,7 @@ import net.tracen.umapyoi.utils.UmaSoulUtils;
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = Umapyoi.MODID)
 public class ThreeGoddessBlockEntity extends SyncedBlockEntity implements MenuProvider {
 
-    public static final int MAX_PROCESS_TIME = 200;
+    public static final int MAX_PROCESS_TIME = 60;
     private final ItemStackHandler inventory;
     private final IItemHandler inputHandler;
     private final IItemHandler outputHandler;

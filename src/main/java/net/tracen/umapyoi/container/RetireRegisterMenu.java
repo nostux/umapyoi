@@ -206,7 +206,7 @@ public class RetireRegisterMenu extends AbstractContainerMenu {
                 .filter(fac -> fac.getFactorType() == FactorType.EXTRASTATUS).count();
         UmaFactor extraStatusFactor = extraStatus.skip(rand.nextLong(extraStatusCount)).findFirst()
                 .orElse(UmaFactorRegistry.PHYSIQUE_FACTOR.get());
-        var extraStatusFactorStack = new UmaFactorStack(extraStatusFactor, rand.nextInt(ranking > 18 ? 3 : 2) + 1);
+        var extraStatusFactorStack = new UmaFactorStack(extraStatusFactor, rand.nextInt(ranking > 18 ? 5 : 3) + 1);
 
         UmaFactorStack uniqueFactor = new UmaFactorStack(UmaFactorRegistry.UNIQUE_SKILL_FACTOR.get(), 1);
         uniqueFactor.getOrCreateTag().putString("skill", UmaSoulUtils.getSkills(inputSoul).get(0).toString());

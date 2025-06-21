@@ -28,7 +28,7 @@ public class WhiteExtraStatusFactor extends UmaFactor {
         if (level != 0) {
             switch (this.statusType) {
     		case 0 ->
-    			UmaSoulUtils.setPhysique(soul, Math.min(5, UmaSoulUtils.getPhysique(soul) + level));
+    			UmaSoulUtils.setPhysique(soul, Math.min(4, UmaSoulUtils.getPhysique(soul) + level));
     		case 1 -> UmaSoulUtils.setLearningTimes(soul, UmaSoulUtils.getLearningTimes(soul) + level);
     		case 2 -> UmaSoulUtils.setSkillSlots(soul, UmaSoulUtils.getSkillSlots(soul)+ level);
     		case 3 -> UmaSoulUtils.setExtraActionPoint(soul, UmaSoulUtils.getExtraActionPoint(soul) + level * 100);

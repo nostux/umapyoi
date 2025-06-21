@@ -189,8 +189,9 @@ public class UmaSoulUtils {
     }
 
     public static void setPhysique(ItemStack stack, int phy) {
-    	stack.update(DataComponentsTypeRegistry.UMADATA_TRAINING, new UmaDataTranining(1, 6), 
-    			data-> new UmaDataTranining(phy, data.talent()));
+        int validatedPhy = Math.max(0, Math.min(5, phy));
+        stack.update(DataComponentsTypeRegistry.UMADATA_TRAINING, new UmaDataTranining(1, 6), 
+                data-> new UmaDataTranining(validatedPhy, data.talent()));
     }
 
     public static void downPhysique(ItemStack stack) {
