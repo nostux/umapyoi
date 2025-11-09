@@ -128,7 +128,7 @@ public class UmaSoulUtils {
     }
 
     public static int getSkillSlots(ItemStack stack) {
-        return stack.get(DataComponentsTypeRegistry.UMADATA_SKILLS).skillSlot();
+        return stack.getOrDefault(DataComponentsTypeRegistry.UMADATA_SKILLS, UmaDataSkills.DEFAULT).skillSlot();
     }
 
     public static void setSkillSlots(ItemStack stack, int slots) {
@@ -137,8 +137,9 @@ public class UmaSoulUtils {
     }
 
     public static boolean hasEmptySkillSlot(ItemStack stack) {
-    	var slots = stack.get(DataComponentsTypeRegistry.UMADATA_SKILLS).skillSlot();
-    	var learned = stack.get(DataComponentsTypeRegistry.UMADATA_SKILLS).skills().size();
+    	var skills = stack.getOrDefault(DataComponentsTypeRegistry.UMADATA_SKILLS, UmaDataSkills.DEFAULT);
+    	var slots = skills.skillSlot();
+    	var learned = skills.skills().size();
     	return learned < slots;
     }
 
@@ -157,7 +158,7 @@ public class UmaSoulUtils {
     }
 
     public static int getActionPoint(ItemStack stack) {
-        return Math.max(stack.get(DataComponentsTypeRegistry.UMADATA_EXTRA_STATUS).actionPoint(), 0);
+        return Math.max(stack.getOrDefault(DataComponentsTypeRegistry.UMADATA_EXTRA_STATUS, UmaDataExtraStatus.DEFAULT).actionPoint(), 0);
     }
 
     public static void setActionPoint(ItemStack stack, int ap) {
@@ -171,12 +172,12 @@ public class UmaSoulUtils {
     }
 
     public static int getMaxActionPoint(ItemStack stack) {
-        return stack.get(DataComponentsTypeRegistry.UMADATA_EXTRA_STATUS).extraActionPoint()
+        return stack.getOrDefault(DataComponentsTypeRegistry.UMADATA_EXTRA_STATUS, UmaDataExtraStatus.DEFAULT).extraActionPoint()
                 + getProperty(stack).wisdom() * (int) (200 * (1.0D + (UmaSoulUtils.getPropertyRate(stack).wisdom() / 100.0D)));
     }
 
     public static int getExtraActionPoint(ItemStack stack) {
-        return Math.max(stack.get(DataComponentsTypeRegistry.UMADATA_EXTRA_STATUS).extraActionPoint(), 0);
+        return Math.max(stack.getOrDefault(DataComponentsTypeRegistry.UMADATA_EXTRA_STATUS, UmaDataExtraStatus.DEFAULT).extraActionPoint(), 0);
     }
     
     public static void setExtraActionPoint(ItemStack stack, int ap) {
@@ -185,7 +186,7 @@ public class UmaSoulUtils {
     }
 
     public static int getPhysique(ItemStack stack) {
-        return stack.get(DataComponentsTypeRegistry.UMADATA_TRAINING).physique();
+        return stack.getOrDefault(DataComponentsTypeRegistry.UMADATA_TRAINING, new UmaDataTranining(1, 6)).physique();
     }
 
     public static void setPhysique(ItemStack stack, int phy) {
@@ -200,7 +201,7 @@ public class UmaSoulUtils {
     }
 
     public static int getLearningTimes(ItemStack stack) {
-        return stack.get(DataComponentsTypeRegistry.UMADATA_TRAINING).talent();
+        return stack.getOrDefault(DataComponentsTypeRegistry.UMADATA_TRAINING, new UmaDataTranining(1, 6)).talent();
     }
 
     public static void setLearningTimes(ItemStack stack, int learns) {
